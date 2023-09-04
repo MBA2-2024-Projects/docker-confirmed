@@ -1,57 +1,87 @@
+# We are using version 3 of docker-compose
 version: "3"
 
+# Services creation
 services:
+  # Creation of MongoDB database service
   mongodb:
+    # Using mongo official docker-hub image with a specific version
     image: mongo:7.0.0
+    # Assign a name for the container
     container_name: mongodb
+    # Service must restart even after a crash
     restart: always
+    # Using environment variables
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-    volumes:
-      - mongodb_data:/data/db
-    ports:
-      - "27017:27017"
+    # Where to retrieve environment variables
     env_file:
       - .env
+    # Data persistence with volume usage
+    volumes:
+      - mongodb_data:/data/db
+    # Port exposure (local:container)
+    ports:
+      - "27017:27017"    
+    # Using custom network
     networks:
       - mern-app-network
 
+  # Creation of React client service
   client:
+    # From where the Dockerfile is located to build the image
     build:
       context: .
       dockerfile: ./client/Dockerfile
+    # Where to retrieve environment variables
     env_file:
       - .env
+    # Local volume and container synchronization
     volumes:
       - ./client:/client
+    # Port exposure (local:container)
     ports:
       - "3000:3000"
+    # The command to execute when the service is started
+    # Here the packages are installed and the react-app is started
     command: >
       sh -c "npm install && npm run start"
+    # Using custom network
     networks:
       - mern-app-network
-
+  
+  # Creation of Express server service
   server:
+    # Wait for the database service to run before starting up
     depends_on:
       - mongodb
+    # From where the Dockerfile is located to build the image
     build:
       context: .
       dockerfile: ./server/Dockerfile
+    # Where to retrieve environment variables
     env_file:
       - .env
+    # Local volume and container synchronization
     volumes:
       - ./server:/server
+    # Port exposure (local:container)
     ports:
-      - "3001:3000"
+      - "3001:3001"
+    # The command to execute when the service is started
+    # Here the packages are installed and the react-app is started in developer mode
     command: >
       sh -c "npm install && npm run dev"
+    # Using custom network
     networks:
       - mern-app-network
 
+# Volumes saving
 volumes:
   mongodb_data:
 
+# Custom networks saving
 networks:
   mern-app-network:
     driver: bridge
