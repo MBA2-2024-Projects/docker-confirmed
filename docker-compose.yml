@@ -26,7 +26,7 @@ services:
       - "27017:27017"    
     # Using custom network
     networks:
-      - mern-app-network
+      - server-database
 
   # Creation of React client service
   client:
@@ -49,7 +49,7 @@ services:
       sh -c "npm install && npm run start"
     # Using custom network
     networks:
-      - mern-app-network
+      - client-server
   
   # Creation of Express server service
   server:
@@ -75,7 +75,8 @@ services:
       sh -c "npm install && npm run dev"
     # Using custom network
     networks:
-      - mern-app-network
+      - client-server
+      - server-database
 
 # Volumes saving
 volumes:
@@ -83,5 +84,5 @@ volumes:
 
 # Custom networks saving
 networks:
-  mern-app-network:
-    driver: bridge
+  client-server:
+  server-database:
