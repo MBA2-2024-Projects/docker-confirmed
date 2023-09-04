@@ -16,11 +16,8 @@ COPY ./server/ .
 # Expose port 3001 to allow incoming connections to the server application
 EXPOSE 3001
 
-# Create a non-privileged user named 'appuser' inside the container
-RUN adduser --disabled-password --gecos '' appuser
-
-# Switch the user context to 'appuser' for improved security
-USER appuser
+# Using the Node user according to best practices
+USER node
 
 # Specify the command to run when the container starts, in this case, 'npm run dev'
 CMD ["npm", "run", "dev"]
