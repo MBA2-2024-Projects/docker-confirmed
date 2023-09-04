@@ -9,4 +9,9 @@ RUN npm install
 COPY ./server/ .
 
 EXPOSE 3000
+
+RUN adduser --disabled-password --gecos '' appuser
+
+USER appuser
+
 CMD ["npm", "run", "dev"]
