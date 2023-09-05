@@ -15,12 +15,14 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
     # Where to retrieve environment variables
     env_file:
       - .env
     # Data persistence with volume usage
-    volumes:
+    volumes:      
       - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     # Port exposure (local:container)
     ports:
       - "27017:27017"    
