@@ -3,6 +3,54 @@ version: "3"
 
 # Services creation
 services:
+  elasticsearch:
+    image: elasticsearch:8.9.0
+    container_name: elasticsearch
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      xpack.security.enabled: false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --silent --fail localhost:9200/_cluster/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    networks:
+      - elastic
+  logstash:
+    image: logstash:8.9.0
+    container_name: logstash
+    environment:
+      discovery.seed_hosts: logstash
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5001:5000/tcp"
+      - "5001:5000/udp"
+      - "5044:5044"
+      - "9600:9600"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+  kibana:
+    image: kibana:8.9.0
+    container_name: kib
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
   # Creation of MongoDB database service
   mongodb:
     # Using mongo official docker-hub image with a specific version
@@ -20,12 +68,12 @@ services:
     env_file:
       - .env
     # Data persistence with volume usage
-    volumes:      
+    volumes:
       - mongodb_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     # Port exposure (local:container)
     ports:
-      - "27017:27017"    
+      - "27017:27017"
     # Using custom network
     networks:
       - server-database
@@ -52,7 +100,7 @@ services:
     # Using custom network
     networks:
       - client-server
-  
+
   # Creation of Express server service
   server:
     # Wait for the database service to run before starting up
@@ -87,4 +135,8 @@ volumes:
 # Custom networks saving
 networks:
   client-server:
+    driver: bridge
   server-database:
+   driver: bridge
+  elastic:
+   driver: bridge
