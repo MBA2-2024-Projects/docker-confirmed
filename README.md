@@ -24,6 +24,7 @@
 ### Entry points
 - Client __REACT__: [http://localhost:3000/](http://localhost:3000/)
 - Server __EXPRESS__: [http://localhost:3001/](http://localhost:3001/)
+- ELK __KIBANA__: [http://localhost:5601/](http://localhost:5601/)
 
 ### ENV file:
 Add __.env__ file at the root of the project.

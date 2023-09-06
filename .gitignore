@@ -1,5 +1,6 @@
 # Project
 .vscode/settings.json
+.env
 
 # OS files
 .DS_Store
